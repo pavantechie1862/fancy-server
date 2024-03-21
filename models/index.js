@@ -47,5 +47,7 @@ Object.keys(db).forEach((modelName) => {
 
 const User = require("./User")(sequelize, Sequelize.DataTypes);
 const Cart = require("./Cart")(sequelize, Sequelize.DataTypes);
+const Subscriber = require("./Subscribers")(sequelize, Sequelize.DataTypes);
+const Callback = require("./Callbacks")(sequelize, Sequelize.DataTypes);
 
-module.exports = { User, db, sequelize, Sequelize, Cart };
+module.exports = { User, db, sequelize, Sequelize, Cart, Subscriber, Callback };

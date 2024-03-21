@@ -116,13 +116,15 @@ const addToCart = async (req, res) => {
     const existingCartItem = await Cart.findOne({
       where: { product_id, added_by: userEmail },
     });
+
+    // return res.status(500);
     if (existingCartItem) {
       return res
         .status(400)
         .json({ message: "Product already exists in your cart" });
     }
     const newCartItem = await Cart.create({ product_id, added_by: userEmail });
-    return res.status(201).json({
+    return res.status(200).json({
       message: "Product added to cart successfully",
       cartItem: newCartItem,
     });
@@ -131,8 +133,6 @@ const addToCart = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-module.exports = addToCart;
 
 const fetchCartItems = async (req, res) => {
   const userEmail = getUserEmailFromToken(req);
@@ -146,9 +146,16 @@ const fetchCartItems = async (req, res) => {
 };
 
 const deleteCartItem = async (req, res) => {
-  const { cart_id } = req.params;
   try {
-    const cartItem = await Cart.findByPk(cart_id);
+    const { data } = req.headers;
+    const userEmail = getUserEmailFromToken(req);
+    const cartItem = await Cart.findOne({
+      where: {
+        cart_id: data, // data = cart_id
+        added_by: userEmail,
+      },
+      order: [["added_at", "ASC"]],
+    });
     if (!cartItem) {
       return res.status(404).json({ message: "Cart item not found" });
     }
