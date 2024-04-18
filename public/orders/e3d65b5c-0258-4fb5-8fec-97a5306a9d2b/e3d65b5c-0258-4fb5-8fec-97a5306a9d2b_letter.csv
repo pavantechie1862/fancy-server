@@ -1,0 +1,74 @@
+id,test_name,requirements,price,method,discipline,nabl_status,additional_info,sub_group,test_limits,subgroup_name
+35,Ash Content (AC) (% by mass),,1000,,CHEMICAL,1,,30,0.95T<= AC >= 1.05T (T-Manufacturer stated value),Admixture
+36,Dry material content (DMC) (%by mass),,1000,,CHEMICAL,1,,30,0.95T<= DMC >= 1.05T (T-Manufacturer stated value),Admixture
+37,Chloride content (% by mass),,1000,,CHEMICAL,1,,30,Within 10% of the value or within 0.2% whichever is greater as stated by the manufacturer,Admixture
+40,pH value (25 degrees C),,1000,,CHEMICAL,1,,30,Min 6.0,Admixture
+43,Relative Density (25 deg C),,1000,,CHEMICAL,1,,30,Within 0.02 of the value stated by the manufacturer,Admixture
+45,Determination of Loss on Ignition ,,0,,CHEMICAL,1,,31,NULL,Cement (OPC)
+46,Determination of Silica,,0,,CHEMICAL,1,,31,NULL,Cement (OPC)
+47,Determination of Ferric Oxide ,,0,As per IS 4032,CHEMICAL,1,,31,NULL,Cement (OPC)
+48,Determination of Aluminia,,0,,CHEMICAL,1,,31,NULL,Cement (OPC)
+49,Determination of Calcium Oxide & Magnesium (EDTA Titration),,0,,CHEMICAL,1,,31,NULL,Cement (OPC)
+50,Determination of Insoluable Residue (IR),,0,,CHEMICAL,1,,31,NULL,Cement (OPC)
+51,Determination of Sulfuric Anhydride (SO3),,0,,CHEMICAL,1,,31,NULL,Cement (OPC)
+52,Determination of Chlorides,,0,,CHEMICAL,1,,31,NULL,Cement (OPC)
+53,Determination of Sodium & Potassium (Flame photometer method),,0,,CHEMICAL,1,,31,NULL,Cement (OPC)
+55,Determination of Loss on Ignition ,,0,,CHEMICAL,1,,33,NULL,Fly Ash
+56,Determination of Silica,,0,,CHEMICAL,1,,33,NULL,Fly Ash
+57,Determination of Combined Oxides %,,0,,CHEMICAL,1,,33,NULL,Fly Ash
+58,Determination of Calcium Oxide & Magnesium Oxide,,0,,CHEMICAL,1,,33,NULL,Fly Ash
+59,Determination of Sulphuric Anhydride (SO3),,0,,CHEMICAL,1,,33,NULL,Fly Ash
+60,Determination of Chlorides,,0,,CHEMICAL,1,,33,NULL,Fly Ash
+61,Determination of Moisture content (M),,0,"IS 1350 (Part-1), Air oven method",CHEMICAL,1,,34,NULL,Coal
+62,Determination of Volatile matter content (VM),,0,IS 1350 (Part - 1),CHEMICAL,1,,34,NULL,Coal
+63,Determination of Ash content,,0,IS 1350 (Part - 1),CHEMICAL,1,,34,NULL,Coal
+64,Determination of Fixed  Carbon (FC),,0,IS 1350 (Part - 1),CHEMICAL,1,,34,NULL,Coal
+65,Determination of Sulphur,,0,IS 1350 (Part - 3),CHEMICAL,1,,34,NULL,Coal
+66,Determination of Gross Calorific Value (GCV),,0,IS 1350 (Part - 2),CHEMICAL,1,,34,NULL,Coal
+67,Ph at 25 deg C,,0,,CHEMICAL,1,,35,NULL,Construction Water
+68,ml of 0.02 N NaOH required to newtralize 100 ml water using Phenoplphthalein indicator,,0,,CHEMICAL,1,,35,NULL,Construction Water
+69,ml of 0.02 N H2SO4 required to newtralize 100 ml water using Mixed indicator,,0,,CHEMICAL,1,,35,NULL,Construction Water
+70,Organic Solids,,0,,CHEMICAL,1,,35,NULL,Construction Water
+71,In organic Solids,,0,,CHEMICAL,1,,35,NULL,Construction Water
+72,Total suspended Solids & Volatile Solids,,0,,CHEMICAL,1,,35,NULL,Construction Water
+73,"Chloride : (Pot. Chromate indicator,N AgNO3)",,0,,CHEMICAL,1,,35,NULL,Construction Water
+74,Sulphate as SO3,,0,,CHEMICAL,1,,35,NULL,Construction Water
+75,Ph,,0,IS 3025 Pt 16,CHEMICAL,1,,36,NULL,Drinking Water
+76,Total dissolved solids ,,0,IS 3025 Pt - 16,CHEMICAL,1,,36,NULL,Drinking Water
+77,Total Hardness ,,0,IS 3025 Pt - 21,CHEMICAL,1,,36,NULL,Drinking Water
+78,Calcium,,0,IS 3025 Pt - 40,CHEMICAL,1,,36,NULL,Drinking Water
+79,Magnesium,,0,IS 3025 - Pt 46,CHEMICAL,1,,36,NULL,Drinking Water
+80,Total Alkalinity,,0,IS 3025 (Pt - 23),CHEMICAL,1,,36,NULL,Drinking Water
+81,Chloride ,,0,IS 3025 Pt - 32,CHEMICAL,1,,36,NULL,Drinking Water
+82,Sulphate,,0,IS 3025 - Pt 24,CHEMICAL,1,,36,NULL,Drinking Water
+83,Reduction in Alkalinity,,0,,CHEMICAL,1,,37,NULL,Coarse Aggregagte
+84,Determination of Dissolved Silica,,0,,CHEMICAL,1,,37,NULL,Coarse Aggregagte
+85,Determination of Sulphuric Anhydride (SO3),,0,,CHEMICAL,1,,37,NULL,Coarse Aggregagte
+86,Determination of Chlorides,,0,,CHEMICAL,1,,37,NULL,Coarse Aggregagte
+87,Moisture Content,,0,,CHEMICAL,1,,38,NULL,Micro Silica
+88,Loss on ignision,,0,,CHEMICAL,1,,38,NULL,Micro Silica
+89,Silicon dioxide,,0,,CHEMICAL,1,,38,NULL,Micro Silica
+90,Determination of Silica,,0,,CHEMICAL,1,,39,NULL,GGBS
+91,Determination of Ferric Oxide,,0,,CHEMICAL,1,,39,NULL,GGBS
+92,Determination of Alumina,,0,,CHEMICAL,1,,39,NULL,GGBS
+93,Determination of Calcium Oxide & Magnesium Oxide,,0,,CHEMICAL,1,,39,NULL,GGBS
+94,Determination of Insoluable Residue (IR),,0,,CHEMICAL,1,,39,NULL,GGBS
+112,Sulphide Sulphur,,0,,CHEMICAL,1,,39,NULL,GGBS
+113,MnO,,0,,CHEMICAL,1,,39,NULL,GGBS
+95,Determination of Loss on Ignition,,0,,CHEMICAL,1,,40,NULL,Cement (SRC)
+96,Determination of Silica,,0,,CHEMICAL,1,,40,NULL,Cement (SRC)
+97,Determination of Ferric Oxide,,0,,CHEMICAL,1,,40,NULL,Cement (SRC)
+98,Determination of Alumina,,0,,CHEMICAL,1,,40,NULL,Cement (SRC)
+99,Determination of Calcium Oxide & Magnesium Oxide,,0,,CHEMICAL,1,,40,NULL,Cement (SRC)
+100,Determination of Insoluable Residue (IR),,0,,CHEMICAL,1,,40,NULL,Cement (SRC)
+101,Determination of Sulfuric Anhydride (SO3),,0,,CHEMICAL,1,,40,NULL,Cement (SRC)
+102,Determination of Loss on Ignition,,0,,CHEMICAL,1,,41,NULL,Cement (PPC)
+103,Determination of Calcium Oxide & Magnesium Oxide,,0,,CHEMICAL,1,,41,NULL,Cement (PPC)
+104,Determination of Insoluable Residue (IR),,0,,CHEMICAL,1,,41,NULL,Cement (PPC)
+105,Determination of Sulfuric Anhydride (SO3),,0,,CHEMICAL,1,,41,NULL,Cement (PPC)
+106,Determination of Loss on Ignition,,0,,CHEMICAL,1,,42,NULL,Cement (PSC)
+107,Determination of Silica,,0,,CHEMICAL,1,,42,NULL,Cement (PSC)
+108,Sulphide Sulphur,,0,,CHEMICAL,1,,42,NULL,Cement (PSC)
+109,Determination of Calcium Oxide & Magnesium Oxide,,0,,CHEMICAL,1,,42,NULL,Cement (PSC)
+110,Determination of Insoluable Residue (IR),,0,,CHEMICAL,1,,42,NULL,Cement (PSC)
+111,Determination of Sulfuric Anhydride (SO3),,0,,CHEMICAL,1,,42,NULL,Cement (PSC)

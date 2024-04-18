@@ -20,6 +20,7 @@ const getUserEmailFromToken = (req) => {
     const decodedToken = jwt.verify(token, KDM_ECOMMERCE_TOKEN);
     return decodedToken.email;
   } catch (error) {
+    console.log(error);
     throw new Error("Invalid token or token expired");
   }
 };
@@ -44,9 +45,11 @@ const registerUser = async (request, response) => {
     };
     const token = jwt.sign(payload, KDM_ECOMMERCE_TOKEN);
 
-    return response
-      .status(200)
-      .send({ message: "You have registered successfully", jwt_token: token });
+    return response.status(200).send({
+      message: "You have registered successfully",
+      jwt_token: token,
+      userDetails: { email, mobile },
+    });
   } catch (err) {
     // console.error(err);
     return response
@@ -79,8 +82,6 @@ const checkUserExistsByEmail = async (email) => {
 };
 
 const loginUser = async (req, res) => {
-  console.log("in login user");
-  console.log(req.body);
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ where: { email } });
@@ -94,7 +95,7 @@ const loginUser = async (req, res) => {
     }
     const payload = { email: user.email };
     const jwt_token = jwt.sign(payload, KDM_ECOMMERCE_TOKEN);
-    res.status(200).json({ jwt_token });
+    res.status(200).json({ jwt_token, userDetails: user });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
@@ -113,17 +114,20 @@ const addToCart = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const existingCartItem = await Cart.findOne({
-      where: { product_id, added_by: userEmail },
-    });
+    // const existingCartItem = await Cart.findOne({
+    //   where: { product_id, added_by: userEmail },
+    // });
 
-    // return res.status(500);
-    if (existingCartItem) {
-      return res
-        .status(400)
-        .json({ message: "Product already exists in your cart" });
-    }
-    const newCartItem = await Cart.create({ product_id, added_by: userEmail });
+    // // return res.status(500);
+    // if (existingCartItem) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Product already exists in your cart" });
+    // }
+    const newCartItem = await Cart.create({
+      product_id,
+      added_by: userEmail,
+    });
     return res.status(200).json({
       message: "Product added to cart successfully",
       cartItem: newCartItem,
