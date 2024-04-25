@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
           onDelete: "CASCADE",
         },
+        field: "subgroup",
       },
       params: {
         type: DataTypes.JSON,

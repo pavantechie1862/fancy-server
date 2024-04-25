@@ -1,4 +1,12 @@
-const { Callback, Subscriber, Product, Params } = require("../models/index");
+const {
+  Callback,
+  Subscriber,
+  Product,
+  Params,
+  Cart,
+  sequelize,
+} = require("../models/index");
+const { getUserEmailFromToken } = require("../controllers/ecommerceControlers");
 const AWS = require("aws-sdk");
 require("dotenv").config();
 
@@ -8,6 +16,23 @@ AWS.config.update({
   region: process.env.AWS_REGION,
 });
 const s3 = new AWS.S3();
+
+const getProductsAddedByCurrentUser = async (currentUser, id) => {
+  try {
+    const cartItems = await Cart.findAll({
+      where: {
+        added_by: currentUser,
+        product_id: id,
+      },
+      attributes: ["product_id", "sample_id"],
+      group: ["product_id", "sample_id"],
+    });
+
+    return cartItems;
+  } catch (error) {
+    throw error;
+  }
+};
 
 const createCallbackRequest = async (req, res) => {
   try {
@@ -143,13 +168,67 @@ const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
     const product = await Product.findByPk(id);
+
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "No products found" });
     }
-    res.status(200).json({ product });
+
+    const currentUser = await getUserEmailFromToken(req);
+
+    const cartItems = await getProductsAddedByCurrentUser(currentUser, id);
+
+    const params = await Params.findAll({
+      where: {
+        subgroup: id,
+      },
+    });
+
+    const formattedParams = params.map((eachParam) => ({
+      paramId: eachParam.param_id,
+      price: eachParam.price,
+      common_req: eachParam.common_req,
+      requirement: eachParam.requirements,
+      isNabl: eachParam.is_nabl,
+      discipline: eachParam.discipline,
+      params: JSON.parse(eachParam.params),
+      selected: false,
+    }));
+
+    console.log("error is not triggered");
+
+    return res
+      .status(200)
+      .json({ product, params: formattedParams, cartItems });
   } catch (error) {
-    console.error("Error fetching product:", error);
-    res.status(500).json({ message: "Failed to fetch product" });
+    console.error("Error fetching products:", error);
+
+    if (
+      error.message === "Token missing in authorization header" ||
+      error.message === "Invalid token or token expired"
+    ) {
+      const { id } = req.params;
+      const product = await Product.findByPk(id);
+
+      const params = await Params.findAll({
+        where: {
+          subgroup: id,
+        },
+      });
+
+      const formattedParams = params.map((eachParam) => ({
+        paramId: eachParam.param_id,
+        price: eachParam.price,
+        common_req: eachParam.common_req,
+        requirement: eachParam.requirements,
+        isNabl: eachParam.is_nabl,
+        discipline: eachParam.discipline,
+        params: JSON.parse(eachParam.params),
+        selected: false,
+      }));
+
+      return res.status(200).json({ product, params: formattedParams });
+    }
+    return res.status(500).json({ message: "Failed to fetch products" });
   }
 };
 
@@ -244,7 +323,7 @@ const getProductPartialData = async (req, res) => {
       ),
     }));
 
-    res.status(200).json({ products: formattedProducts });
+    return res.status(200).json({ products: formattedProducts });
   } catch (error) {
     console.error("Error fetching partial product data:", error);
     res.status(500).json({ message: "Failed to fetch partial product data" });

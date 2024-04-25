@@ -1,11 +1,13 @@
 const db = require("./models");
-
+const cors = require("cors");
 // Configuration
 const express = require("express");
 const path = require("path");
 const app = express();
 app.use(express.json());
 app.use(express.static("public"));
+app.use(cors());
+app.use(express.urlencoded({ extended: false }));
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 require("dotenv").config();
@@ -13,13 +15,14 @@ require("dotenv").config();
 const port = process.env.PORT;
 
 app.use((req, res, next) => {
-  // console.log();
-  // console.log();
-  // console.log();
-  // console.log();
-  // console.log();
-  // console.log();
-  // console.log();
+  // console.log("request triggered");
+  console.log();
+  console.log();
+  console.log();
+  console.log();
+  console.log();
+  console.log();
+  console.log();
 
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Credentials", true);
@@ -28,7 +31,10 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Headers",
     "Content-Type,Authorization, data"
   );
+
+  // setTimeout(() => {
   next();
+  // }, 100);
 });
 
 const ecommerceRoutes = require("./routes/ecommerceRoutes");
