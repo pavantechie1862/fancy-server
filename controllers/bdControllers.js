@@ -226,7 +226,9 @@ const getProductById = async (req, res) => {
         selected: false,
       }));
 
-      return res.status(200).json({ product, params: formattedParams });
+      return res
+        .status(200)
+        .json({ product, params: formattedParams, cartItems: [] });
     }
     return res.status(500).json({ message: "Failed to fetch products" });
   }
