@@ -52,6 +52,5 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "cart",
     }
   );
-
   return Cart;
 };

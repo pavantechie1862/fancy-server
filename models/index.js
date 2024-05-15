@@ -5,7 +5,7 @@ const path = require("path");
 const Sequelize = require("sequelize");
 const process = require("process");
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || "development";
+const env = "test";
 const config = require(__dirname + "/../config/config.json")[env];
 const db = {};
 
@@ -57,6 +57,14 @@ const Branch = require("./Branch")(sequelize, Sequelize.DataTypes);
 const Department = require("./Department")(sequelize, Sequelize.DataTypes);
 const Role = require("./Role")(sequelize, Sequelize.DataTypes);
 const AccessKey = require("./AccessKeys")(sequelize, Sequelize.DataTypes);
+const SampleMaterials = require("./SampleMaterials")(
+  sequelize,
+  Sequelize.DataTypes
+);
+
+const SampleParams = require("./SampleParams")(sequelize, Sequelize.DataTypes);
+const Customers = require("./Customers")(sequelize, Sequelize.DataTypes);
+// const  = require("./AccessKeys")(sequelize, Sequelize.DataTypes)
 
 module.exports = {
   User,
@@ -74,4 +82,8 @@ module.exports = {
   Department,
   Role,
   AccessKey,
+  Orders,
+  SampleMaterials,
+  SampleParams,
+  Customers,
 };

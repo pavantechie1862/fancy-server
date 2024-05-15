@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       timestamps: false,
-      tableName: "Params", // Define the table name explicitly
+      tableName: "params", // Define the table name explicitly
     }
   );
 

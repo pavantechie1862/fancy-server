@@ -15,7 +15,6 @@ const jwt = require("jsonwebtoken");
 const getAllRoles = async (req, res) => {
   try {
     const roles = await Role.findAll();
-
     return res.status(200).json({ roles });
   } catch (error) {
     console.error("Error fetching roles:", error);

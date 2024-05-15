@@ -5,9 +5,15 @@ const {
   Params,
   Cart,
   sequelize,
+  Sequelize,
+  Orders,
+  SampleMaterials,
+  SampleParams,
+  Customers,
 } = require("../models/index");
 const { getUserEmailFromToken } = require("../controllers/ecommerceControlers");
 const AWS = require("aws-sdk");
+
 require("dotenv").config();
 
 AWS.config.update({
@@ -15,6 +21,7 @@ AWS.config.update({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_REGION,
 });
+
 const s3 = new AWS.S3();
 
 const getProductsAddedByCurrentUser = async (currentUser, id) => {
@@ -214,7 +221,6 @@ const getProductById = async (req, res) => {
           subgroup: id,
         },
       });
-
       const formattedParams = params.map((eachParam) => ({
         paramId: eachParam.param_id,
         price: eachParam.price,
@@ -225,7 +231,6 @@ const getProductById = async (req, res) => {
         params: JSON.parse(eachParam.params),
         selected: false,
       }));
-
       return res
         .status(200)
         .json({ product, params: formattedParams, cartItems: [] });
@@ -345,7 +350,6 @@ const getAllProductsNameId = async (req, res) => {
 };
 
 const addParams = async (req, res) => {
-  console.log("hey am here");
   try {
     const {
       id,
@@ -385,6 +389,442 @@ const addParams = async (req, res) => {
   }
 };
 
+const getRequestCallbacks = async (req, res) => {
+  try {
+    const callbacks = await Callback.findAll({
+      order: [["requested_at", "ASC"]],
+    });
+    return res.status(200).json({ data: callbacks });
+  } catch (err) {
+    console.log("eerror while fetching call back requests", err);
+    res.status(500).json({ error: "internal server error" });
+  }
+};
+
+const uploadAudioFileToS3 = (file) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      Bucket: process.env.AWS_CUSTOMER_CARE_BUCKET,
+      Key: file.originalname,
+      Body: file.buffer,
+    };
+
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.error("Error uploading file to S3:", err);
+        reject(err);
+      } else {
+        console.log("File uploaded successfully:", data.Location);
+        resolve(data);
+      }
+    });
+  });
+};
+
+const uploadCustomerRequestAudio = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No audio file uploaded" });
+    }
+    const callbackId = req.body.requestId;
+    if (!callbackId) {
+      return res.status(400).json({ error: "No callback ID provided" });
+    }
+
+    const audioFile = req.file;
+    const uploadedFile = await uploadAudioFileToS3(audioFile);
+    const audioUrl = uploadedFile.Location;
+    await Callback.update(
+      { callrecording: audioUrl },
+      { where: { request_id: callbackId } },
+      { transaction: t }
+    );
+
+    t.commit();
+    return res.status(200).json({
+      message: "Audio uploaded successfully",
+      url: audioUrl,
+      request_id: callbackId,
+    });
+  } catch (error) {
+    t.rollback();
+    console.log(error);
+    console.error("Error uploading audio file:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getAllEcommerceOrders = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const result = [];
+    const ordersList = await Orders.findAll(
+      {
+        order: [["created_at", "DESC"]],
+      },
+      { transaction: t }
+    );
+
+    for (let eachOrder of ordersList) {
+      const orderObj = {
+        placedOn: eachOrder.created_at,
+        order_id: eachOrder.order_id,
+
+        samples_received: eachOrder.samples_received,
+        driver_assigned: eachOrder.driver_assigned,
+        proforma_issued: eachOrder.proforma_issued,
+        project_name: eachOrder.project_name,
+        subject: eachOrder.subject,
+        parent_ref: eachOrder.parent_ref,
+        nhai_hq_letter: eachOrder.nhai_hq_letter,
+        additional_info: eachOrder.additional_info,
+        letter: eachOrder.letter,
+        due_date: eachOrder.due_date,
+        razorpay_order_id: eachOrder.razorpay_order_id,
+        razorpay_payment_id: eachOrder.razorpay_payment_id,
+        samples_collection_address: eachOrder.samples_collection_address,
+        samplesList: [],
+      };
+
+      const customerData = await Customers.findByPk(eachOrder.customer_id, {
+        transaction: t,
+      });
+
+      orderObj.customerData = customerData;
+
+      const samplesList = await SampleMaterials.findAll(
+        {
+          where: {
+            order_id: eachOrder.order_id,
+          },
+        },
+        { transaction: t }
+      );
+
+      for (let eachSampleOfIthOrder of samplesList) {
+        const sample = {
+          //Hey Pav..  you want any additional thing freel free to add
+          sample_id: eachSampleOfIthOrder.sample_id,
+          product_id: eachSampleOfIthOrder.product_id,
+          isOffer: eachSampleOfIthOrder.isOffer,
+          offer: eachSampleOfIthOrder.offer,
+          chemicalParams: [],
+          physicalParams: [],
+
+          brandName: eachSampleOfIthOrder.brandName,
+          created_at: eachSampleOfIthOrder.created_at,
+          grade: eachSampleOfIthOrder.grade,
+          quantity: eachSampleOfIthOrder.quantity,
+          ref_code: eachSampleOfIthOrder.ref_code,
+          sample_id_optional_field:
+            eachSampleOfIthOrder.sample_id_optional_field,
+          source: eachSampleOfIthOrder.source,
+          week_no: eachSampleOfIthOrder.week_no,
+        };
+
+        const productAdditionalInfo = await Product.findByPk(
+          eachSampleOfIthOrder.product_id,
+          { transaction: t }
+        );
+
+        sample.name = productAdditionalInfo.name;
+        sample.image = productAdditionalInfo.image;
+
+        const paramsList = await SampleParams.findAll(
+          {
+            where: {
+              sample_id: eachSampleOfIthOrder.sample_id,
+            },
+          },
+          { transaction: t }
+        );
+
+        for (let eachParamOfTotalSamples of paramsList) {
+          const param = {
+            param_id: eachParamOfTotalSamples.param_id,
+            orderedPrice: eachParamOfTotalSamples.param_price,
+          };
+
+          const paramInfo = await Params.findByPk(
+            eachParamOfTotalSamples.param_id,
+            { transaction: t }
+          );
+
+          param.selectedParams = JSON.parse(paramInfo.params);
+          if (paramInfo.discipline === "CHEMICAL") {
+            sample.chemicalParams.push(param);
+          } else {
+            sample.physicalParams.push(param);
+          }
+        }
+
+        orderObj.samplesList.push(sample);
+      }
+      result.push(orderObj);
+    }
+
+    await t.commit();
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    await t.rollback();
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const uploadWorkOrderFileToS3 = (file, id) => {
+  return new Promise((resolve, reject) => {
+    const params = {
+      Bucket: process.env.AWS_KDM_WORK_ORDER_LETTERS,
+      Key: `${id}-letter`,
+      Body: file.buffer,
+    };
+
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.error("Error uploading file to S3:", err);
+        reject(err);
+      } else {
+        console.log("File uploaded successfully:", data.Location);
+        resolve(data);
+      }
+    });
+  });
+};
+
+const completeEcommerceOrderRegistration = async (req, res) => {
+  const t = await sequelize.transaction();
+
+  const {
+    //order info
+    order_id,
+    project_name,
+    subject,
+    parent_ref,
+    nhai_hq_letter,
+    additional_info,
+    due_date,
+    nhai_bool,
+    parent_ref_bool,
+    samples,
+    //customers Data
+    existing_customer,
+    name,
+    email,
+    mobile,
+    gst,
+    pan,
+    customer_address,
+  } = req.body;
+
+  try {
+    console.log(req.file);
+    if (!req.file) {
+      return res.status(400).json({ error: "No letter uploaded" });
+    }
+
+    const letterFile = req.file;
+    const uploadedFile = await uploadWorkOrderFileToS3(letterFile, order_id);
+    const client_letter_location = uploadedFile.Location;
+
+    if (existing_customer === "false") {
+      console.log("Am inside if");
+      const customerObj = {
+        name,
+        email,
+        contact: mobile,
+        gst_number: gst,
+        pan_number: pan,
+        address: customer_address,
+      };
+
+      customerInfo = await Customers.create(customerObj, { transaction: t });
+      console.log(customerInfo);
+    }
+    await Orders.update(
+      {
+        project_name,
+        subject,
+        parent_ref,
+        nhai_hq_letter,
+        additional_info,
+        due_date,
+        nhai_bool,
+        parent_ref_bool,
+        customer_id: customerInfo.customer_id,
+        client_letter: client_letter_location,
+      },
+      { where: { order_id } },
+      { transaction: t }
+    );
+
+    for (let eachSample of samples) {
+      const {
+        source,
+        quantity,
+        grade,
+        brandName,
+        week_no,
+        ref_code,
+        sample_id_optional_field,
+        sample_id,
+      } = eachSample;
+
+      await SampleMaterials.update(
+        {
+          source,
+          quantity,
+          grade,
+          brandName,
+          week_no,
+          ref_code,
+          sample_id_optional_field,
+        },
+        { where: { sample_id } },
+        { transaction: t }
+      );
+    }
+
+    await t.commit();
+    return res
+      .status(200)
+      .json({ message: "Order registration completed successfully" });
+  } catch (err) {
+    console.log(err);
+    await t.rollback();
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getCustomersList = async (req, res) => {
+  try {
+    const customersList = await Customers.findAll({
+      order: [["created_at", "DESC"]],
+    });
+
+    console.log(customersList);
+    return res.status(200).json({ data: customersList });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const addCustomer = async (req, res) => {
+  console.log(req.body);
+  const { name, customer_address, pan, gst, mobile, email } = req.body;
+  console.log(name);
+
+  try {
+    const existingCustomer = await Customers.findOne({
+      where: { name, pan_number: pan, gst_number: gst, contact: mobile },
+    });
+    if (existingCustomer) {
+      return res.status(500).json({ message: "Customer already exists" });
+    }
+    const newCustomer = await Customers.create({
+      name,
+      address: customer_address,
+      pan_number: pan,
+      gst_number: gst,
+      contact: mobile,
+      email,
+    });
+
+    console.log("customer added successfully");
+    return res
+      .status(200)
+      .json({ message: "Customer added successfully", data: newCustomer });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getSubscribers = async (req, res) => {
+  try {
+    const subscribersList = await Subscriber.findAll({
+      order: [["subscribed_at", "DESC"]],
+    });
+    return res.status(200).json({ data: subscribersList });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getSubscriberStatisticsMonthly = async (req, res) => {
+  try {
+    const counts = await Subscriber.findAll({
+      attributes: [
+        [
+          Sequelize.fn("DATE_FORMAT", Sequelize.col("subscribed_at"), "%m-%Y"),
+          "month_year",
+        ],
+        [Sequelize.fn("COUNT", "*"), "count"],
+      ],
+      group: [
+        Sequelize.fn("DATE_FORMAT", Sequelize.col("subscribed_at"), "%m-%Y"),
+      ],
+      order: [[Sequelize.literal("month_year"), "ASC"]],
+      raw: true,
+    });
+
+    const result = counts.map((count) => ({
+      label: count.month_year,
+      count: count.count,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getSubscriberStatisticsLast30Days = async (req, res) => {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const counts = await Subscriber.findAll({
+      attributes: [
+        [
+          Sequelize.fn(
+            "DATE_FORMAT",
+            Sequelize.col("subscribed_at"),
+            "%Y-%m-%d"
+          ),
+          "day",
+        ],
+        [Sequelize.fn("COUNT", "*"), "count"],
+      ],
+      where: {
+        subscribed_at: {
+          [Sequelize.Op.gte]: thirtyDaysAgo,
+        },
+      },
+      group: [
+        Sequelize.fn("DATE_FORMAT", Sequelize.col("subscribed_at"), "%Y-%m-%d"),
+      ],
+      order: [[Sequelize.literal("day"), "ASC"]],
+      limit: 30,
+      raw: true,
+    });
+
+    const result = counts.map((count) => ({
+      label: count.day,
+      count: count.count,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   createCallbackRequest,
   subscribeController,
@@ -400,4 +840,19 @@ module.exports = {
 
   //params
   addParams,
+
+  //client-requests
+  getRequestCallbacks,
+  uploadCustomerRequestAudio,
+
+  //ecommerce-orders
+  getAllEcommerceOrders,
+  completeEcommerceOrderRegistration,
+  getCustomersList,
+  addCustomer,
+  getSubscribers,
+
+  // graphs
+  getSubscriberStatisticsMonthly,
+  getSubscriberStatisticsLast30Days,
 };

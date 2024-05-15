@@ -95,4 +95,6 @@ router.post(
   }
 );
 
+router.get("", (req, res) => res.json("hello worlyfghjk"));
+
 module.exports = router;

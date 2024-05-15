@@ -15,7 +15,7 @@ require("dotenv").config();
 const port = process.env.PORT;
 
 app.use((req, res, next) => {
-  // console.log("request triggered");
+  console.log("request triggered");
   console.log();
   console.log();
   console.log();
@@ -23,8 +23,11 @@ app.use((req, res, next) => {
   console.log();
   console.log();
   console.log();
+  // console.log(req.headers);
 
+  // res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+
   res.header("Access-Control-Allow-Credentials", true);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header(
@@ -33,8 +36,12 @@ app.use((req, res, next) => {
   );
 
   // setTimeout(() => {
+  //   next();
+  // }, 4000);
+
   next();
-  // }, 100);
+
+  // next();
 });
 
 const ecommerceRoutes = require("./routes/ecommerceRoutes");
@@ -47,7 +54,47 @@ app.use("/ecommerce", ecommerceRoutes);
 app.use("/bd", bdRoutes);
 app.use("/hr-admin", hrRoutes);
 app.use("/employee", employeeRoutes);
-app.use("/upload", trial);
+// app.use("/upload", trial);
+app.use("/random", trial);
+
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
+console.log();
 
 db.sequelize.sync().then(() => {
   app.listen(port, () => {
