@@ -23,9 +23,11 @@ app.use((req, res, next) => {
   console.log();
   console.log();
   console.log();
-  // console.log(req.headers);
+  // console.log(req.headers);http://192.168.211.22:85/
 
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  // res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Origin", "http://192.168.211.22:85/");
+
   res.header("Access-Control-Allow-Credentials", true);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header(
