@@ -26,14 +26,14 @@ app.use((req, res, next) => {
   // console.log(req.headers);http://192.168.211.22:85/
 
   // res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.header("Access-Control-Allow-Origin", "http://192.168.211.22:85/");
+  res.header("Access-Control-Allow-Origin", "http://192.168.211.22:85");
 
-  // res.header("Access-Control-Allow-Credentials", false);
-  // res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  // res.header(
-  //   "Access-Control-Allow-Headers",
-  //   "Content-Type,Authorization, data"
-  // );
+  res.header("Access-Control-Allow-Credentials", false);
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type,Authorization, data"
+  );
 
   next();
 });
