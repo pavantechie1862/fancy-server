@@ -21,7 +21,16 @@
     "database": "lims",
     "host": "fancy-lims.c98oisyqu0gw.ap-south-1.rds.amazonaws.com",
     "dialect": "mysql",
-    "connectTimeout": 30000
+    "connectTimeout": 30000,
+    "define": {
+      "timestamps": false
+    },
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
   },
   "production": {
     "username": "root",

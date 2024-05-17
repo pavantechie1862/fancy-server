@@ -194,11 +194,10 @@ const cartCheckout = async (req, res) => {
         .status(500)
         .json({ message: "Error encountered in creating order on server" });
     }
-    console.log("hey am here");
+    console.log("hey am here from creating order on server");
     return res.status(200).json(order);
   } catch (err) {
-    console.log("hey error fk of");
-
+    console.log(err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -310,6 +309,7 @@ const getCartItems = async (currentUser) => {
 
 const createOrder = async (req, res) => {
   const t = await sequelize.transaction();
+  console.log("create order controller");
   try {
     const currentUser = await getUserEmailFromToken(req);
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =

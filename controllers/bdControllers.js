@@ -10,6 +10,7 @@ const {
   SampleMaterials,
   SampleParams,
   Customers,
+  User,
 } = require("../models/index");
 const { getUserEmailFromToken } = require("../controllers/ecommerceControlers");
 const AWS = require("aws-sdk");
@@ -595,6 +596,10 @@ const uploadWorkOrderFileToS3 = (file, id) => {
 
 const completeEcommerceOrderRegistration = async (req, res) => {
   const t = await sequelize.transaction();
+  // return res.status(200).json({
+  //   message: "Order registration completed successfully",
+  //   data: req.body,
+  // });
 
   const {
     //order info
@@ -642,6 +647,7 @@ const completeEcommerceOrderRegistration = async (req, res) => {
       customerInfo = await Customers.create(customerObj, { transaction: t });
       console.log(customerInfo);
     }
+
     await Orders.update(
       {
         project_name,
@@ -687,9 +693,10 @@ const completeEcommerceOrderRegistration = async (req, res) => {
     }
 
     await t.commit();
-    return res
-      .status(200)
-      .json({ message: "Order registration completed successfully" });
+    return res.status(200).json({
+      message: "Order registration completed successfully",
+      data: req.body,
+    });
   } catch (err) {
     console.log(err);
     await t.rollback();
@@ -703,8 +710,21 @@ const getCustomersList = async (req, res) => {
       order: [["created_at", "DESC"]],
     });
 
-    console.log(customersList);
     return res.status(200).json({ data: customersList });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getSiteUsers = async (req, res) => {
+  try {
+    const usersList = await User.findAll({
+      attributes: ["id", "email", "mobile", "registeredDate"],
+      order: [["registeredDate", "DESC"]],
+    });
+
+    return res.status(200).json({ data: usersList });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "Internal server error" });
@@ -825,6 +845,275 @@ const getSubscriberStatisticsLast30Days = async (req, res) => {
   }
 };
 
+const getLast30CustomerCounts = async (req, res) => {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const last30Customers = await Customers.findAll({
+      attributes: [
+        [
+          Sequelize.fn("DATE_FORMAT", Sequelize.col("created_at"), "%Y-%m-%d"),
+          "day",
+        ],
+        [Sequelize.fn("COUNT", "*"), "count"],
+      ],
+      where: {
+        created_at: {
+          [Sequelize.Op.gte]: thirtyDaysAgo,
+        },
+      },
+      group: [
+        Sequelize.fn("DATE_FORMAT", Sequelize.col("created_at"), "%Y-%m-%d"),
+      ],
+      order: [[Sequelize.literal("day"), "DESC"]],
+      limit: 30,
+      raw: true,
+    });
+
+    const result = last30Customers.map((customer) => ({
+      label: customer.day,
+      count: customer.count,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getCustomerStatisticsMonthly = async (req, res) => {
+  try {
+    const customerCounts = await Customers.findAll({
+      attributes: [
+        [
+          Sequelize.fn("DATE_FORMAT", Sequelize.col("created_at"), "%m-%Y"),
+          "month_year",
+        ],
+        [Sequelize.fn("COUNT", "*"), "count"],
+      ],
+      group: [
+        Sequelize.fn("DATE_FORMAT", Sequelize.col("created_at"), "%m-%Y"),
+      ],
+      order: [[Sequelize.literal("month_year"), "ASC"]],
+      raw: true,
+    });
+
+    const result = customerCounts.map((customerCount) => ({
+      label: customerCount.month_year,
+      count: customerCount.count,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getLast30DaysOrderCounts = async (req, res) => {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const last30Orders = await Orders.findAll({
+      attributes: [
+        [
+          Sequelize.fn("DATE_FORMAT", Sequelize.col("created_at"), "%Y-%m-%d"),
+          "day",
+        ],
+        [Sequelize.fn("COUNT", "*"), "count"],
+      ],
+      where: {
+        created_at: {
+          [Sequelize.Op.gte]: thirtyDaysAgo,
+        },
+      },
+      group: [
+        Sequelize.fn("DATE_FORMAT", Sequelize.col("created_at"), "%Y-%m-%d"),
+      ],
+      order: [[Sequelize.literal("day"), "ASC"]],
+      raw: true,
+    });
+
+    const result = last30Orders.map((order) => ({
+      label: order.day,
+      count: order.count,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getOrderStatisticsMonthly = async (req, res) => {
+  try {
+    const orderCounts = await Orders.findAll({
+      attributes: [
+        [
+          Sequelize.fn("DATE_FORMAT", Sequelize.col("created_at"), "%m-%Y"),
+          "month_year",
+        ],
+        [Sequelize.fn("COUNT", "*"), "count"],
+      ],
+      group: [
+        Sequelize.fn("DATE_FORMAT", Sequelize.col("created_at"), "%m-%Y"),
+      ],
+      order: [[Sequelize.literal("month_year"), "ASC"]],
+      raw: true,
+    });
+
+    const result = orderCounts.map((orderCount) => ({
+      label: orderCount.month_year,
+      count: orderCount.count,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getProductSampleCounts = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        p.name, 
+        p.image, 
+        COUNT(sm.product_id) AS count
+      FROM 
+        products p
+      JOIN 
+        sample_materials sm
+      ON 
+        p.id = sm.product_id
+      GROUP BY 
+        p.id
+      ORDER BY 
+        count DESC
+    `;
+
+    const results = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT,
+    });
+
+    return res.status(200).json({ data: results });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getDisciplineWise = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        p.discipline as name,
+        COUNT(sp.param_id) AS value
+      FROM 
+        sample_params sp
+      JOIN 
+        params p ON sp.param_id = p.param_id
+      GROUP BY 
+        p.discipline
+     
+    `;
+
+    const results = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT,
+    });
+
+    return res.status(200).json({ data: results });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getOnlineUsersMonthly = async (req, res) => {
+  try {
+    const onlineUsers = await User.findAll({
+      attributes: [
+        [
+          Sequelize.fn("DATE_FORMAT", Sequelize.col("registeredDate"), "%m-%Y"),
+          "month_year",
+        ],
+        [Sequelize.fn("COUNT", "*"), "count"],
+      ],
+      group: [
+        Sequelize.fn("DATE_FORMAT", Sequelize.col("registeredDate"), "%m-%Y"),
+      ],
+      order: [[Sequelize.literal("month_year"), "ASC"]],
+      raw: true,
+    });
+
+    const result = onlineUsers.map((eachUser) => ({
+      label: eachUser.month_year,
+      count: eachUser.count,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getOnlineUsersDaily = async (req, res) => {
+  try {
+    const last30Users = await User.findAll({
+      attributes: ["registeredDate"],
+      order: [["registeredDate", "ASC"]],
+      limit: 30,
+      raw: true,
+    });
+
+    const registrationDates = last30Users.map((user) => user.registeredDate);
+
+    const dailyCounts = await User.findAll({
+      attributes: [
+        [
+          Sequelize.fn(
+            "DATE_FORMAT",
+            Sequelize.col("registeredDate"),
+            "%Y-%m-%d"
+          ),
+          "day",
+        ],
+        [Sequelize.fn("COUNT", "*"), "count"],
+      ],
+      where: {
+        registeredDate: {
+          [Sequelize.Op.in]: registrationDates,
+        },
+      },
+      group: [
+        Sequelize.fn(
+          "DATE_FORMAT",
+          Sequelize.col("registeredDate"),
+          "%Y-%m-%d"
+        ),
+      ],
+      order: [[Sequelize.literal("day"), "DESC"]],
+      raw: true,
+      limit: 30,
+    });
+
+    const result = dailyCounts.map((record) => ({
+      label: record.day,
+      count: record.count,
+    }));
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   createCallbackRequest,
   subscribeController,
@@ -852,7 +1141,18 @@ module.exports = {
   addCustomer,
   getSubscribers,
 
+  //website users
+  getSiteUsers,
+
   // graphs
   getSubscriberStatisticsMonthly,
   getSubscriberStatisticsLast30Days,
+  getCustomerStatisticsMonthly,
+  getLast30CustomerCounts,
+  getOrderStatisticsMonthly,
+  getLast30DaysOrderCounts,
+  getProductSampleCounts,
+  getDisciplineWise,
+  getOnlineUsersMonthly,
+  getOnlineUsersDaily,
 };

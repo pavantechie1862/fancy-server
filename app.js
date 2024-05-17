@@ -25,9 +25,7 @@ app.use((req, res, next) => {
   console.log();
   // console.log(req.headers);
 
-  // res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-
   res.header("Access-Control-Allow-Credentials", true);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header(
@@ -35,13 +33,7 @@ app.use((req, res, next) => {
     "Content-Type,Authorization, data"
   );
 
-  // setTimeout(() => {
-  //   next();
-  // }, 4000);
-
   next();
-
-  // next();
 });
 
 const ecommerceRoutes = require("./routes/ecommerceRoutes");
