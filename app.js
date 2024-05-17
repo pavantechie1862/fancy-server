@@ -6,7 +6,7 @@ const path = require("path");
 const app = express();
 app.use(express.json());
 app.use(express.static("public"));
-// app.use(cors());
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/public", express.static(path.join(__dirname, "public")));
@@ -28,12 +28,12 @@ app.use((req, res, next) => {
   // res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Origin", "http://192.168.211.22:85/");
 
-  res.header("Access-Control-Allow-Credentials", false);
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Content-Type,Authorization, data"
-  );
+  // res.header("Access-Control-Allow-Credentials", false);
+  // res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  // res.header(
+  //   "Access-Control-Allow-Headers",
+  //   "Content-Type,Authorization, data"
+  // );
 
   next();
 });
