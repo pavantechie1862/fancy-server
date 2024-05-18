@@ -26,7 +26,7 @@ app.use((req, res, next) => {
   // console.log(req.headers);http://192.168.211.22:85/
 
   // res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.header("Access-Control-Allow-Origin", "http://192.168.1.7:85/");
+  res.header("Access-Control-Allow-Origin", "http://192.168.1.7:85");
 
   res.header("Access-Control-Allow-Credentials", false);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
