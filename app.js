@@ -23,10 +23,8 @@ app.use((req, res, next) => {
   console.log();
   console.log();
   console.log();
-  // console.log(req.headers);http://192.168.211.22:85/
-
-  // res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.header("Access-Control-Allow-Origin", "http://192.168.1.7:85");
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  // res.header("Access-Control-Allow-Origin", "http://192.168.1.7:85");
 
   res.header("Access-Control-Allow-Credentials", false);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
@@ -35,6 +33,9 @@ app.use((req, res, next) => {
     "Content-Type,Authorization, data"
   );
 
+  // setInterval(() => {
+  //   next();
+  // }, 3000);
   next();
 });
 
@@ -43,52 +44,14 @@ const bdRoutes = require("./routes/bdRoutes");
 const hrRoutes = require("./routes/hrRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const trial = require("./routes/trial");
+const admin = require("./routes/adminRoutes");
 
 app.use("/ecommerce", ecommerceRoutes);
 app.use("/bd", bdRoutes);
 app.use("/hr-admin", hrRoutes);
 app.use("/employee", employeeRoutes);
-// app.use("/upload", trial);
+app.use("/admin", admin);
 app.use("/random", trial);
-
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
 
 db.sequelize.sync().then(() => {
   app.listen(port, () => {

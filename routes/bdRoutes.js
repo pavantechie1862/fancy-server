@@ -17,6 +17,7 @@ const {
   getCustomersList,
   addCustomer,
   getSubscribers,
+  getCompleteOrderDetails,
 
   //website
   getSiteUsers,
@@ -58,6 +59,8 @@ router.post(
 );
 
 router.get("/get-ecommerce-orders", getAllEcommerceOrders);
+router.get("/order/:id", getCompleteOrderDetails);
+
 router.post(
   "/complete-ecommerce-order-registration",
   upload.single("letter"),

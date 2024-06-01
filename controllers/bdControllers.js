@@ -308,6 +308,7 @@ const editProductById = async (req, res) => {
 const getProductPartialData = async (req, res) => {
   try {
     const products = await Product.findAll({
+      order: [["name"]],
       attributes: [
         "id",
         "image",
@@ -458,8 +459,8 @@ const uploadCustomerRequestAudio = async (req, res) => {
 
 const getAllEcommerceOrders = async (req, res) => {
   const t = await sequelize.transaction();
+  const result = [];
   try {
-    const result = [];
     const ordersList = await Orders.findAll(
       {
         order: [["created_at", "DESC"]],
@@ -471,21 +472,21 @@ const getAllEcommerceOrders = async (req, res) => {
       const orderObj = {
         placedOn: eachOrder.created_at,
         order_id: eachOrder.order_id,
-
         samples_received: eachOrder.samples_received,
         driver_assigned: eachOrder.driver_assigned,
         proforma_issued: eachOrder.proforma_issued,
         project_name: eachOrder.project_name,
         subject: eachOrder.subject,
-        parent_ref: eachOrder.parent_ref,
-        nhai_hq_letter: eachOrder.nhai_hq_letter,
-        additional_info: eachOrder.additional_info,
+        // parent_ref: eachOrder.parent_ref,
+        // nhai_hq_letter: eachOrder.nhai_hq_letter,
+        // additional_info: eachOrder.additional_info,
         letter: eachOrder.letter,
         due_date: eachOrder.due_date,
-        razorpay_order_id: eachOrder.razorpay_order_id,
-        razorpay_payment_id: eachOrder.razorpay_payment_id,
-        samples_collection_address: eachOrder.samples_collection_address,
-        samplesList: [],
+        registration_done: eachOrder.registration_done,
+        // razorpay_order_id: eachOrder.razorpay_order_id,
+        // razorpay_payment_id: eachOrder.razorpay_payment_id,
+        // samples_collection_address: eachOrder.samples_collection_address,
+        // samplesList: [],
       };
 
       const customerData = await Customers.findByPk(eachOrder.customer_id, {
@@ -493,82 +494,166 @@ const getAllEcommerceOrders = async (req, res) => {
       });
 
       orderObj.customerData = customerData;
+      result.push(orderObj);
 
-      const samplesList = await SampleMaterials.findAll(
+      // const samplesList = await SampleMaterials.findAll(
+      //   {
+      //     where: {
+      //       order_id: eachOrder.order_id,
+      //     },
+      //   },
+      //   { transaction: t }
+      // );
+
+      // for (let eachSampleOfIthOrder of samplesList) {
+      //   const sample = {
+      //     //Hey Pav..  you want any additional thing freel free to add
+      //     sample_id: eachSampleOfIthOrder.sample_id,
+      //     product_id: eachSampleOfIthOrder.product_id,
+      //     isOffer: eachSampleOfIthOrder.isOffer,
+      //     offer: eachSampleOfIthOrder.offer,
+      //     chemicalParams: [],
+      //     physicalParams: [],
+
+      //     brandName: eachSampleOfIthOrder.brandName,
+      //     created_at: eachSampleOfIthOrder.created_at,
+      //     grade: eachSampleOfIthOrder.grade,
+      //     quantity: eachSampleOfIthOrder.quantity,
+      //     ref_code: eachSampleOfIthOrder.ref_code,
+      //     sample_id_optional_field:
+      //       eachSampleOfIthOrder.sample_id_optional_field,
+      //     source: eachSampleOfIthOrder.source,
+      //     week_no: eachSampleOfIthOrder.week_no,
+      //   };
+
+      //   const productAdditionalInfo = await Product.findByPk(
+      //     eachSampleOfIthOrder.product_id,
+      //     { transaction: t }
+      //   );
+
+      //   sample.name = productAdditionalInfo.name;
+      //   sample.image = productAdditionalInfo.image;
+
+      //   const paramsList = await SampleParams.findAll(
+      //     {
+      //       where: {
+      //         sample_id: eachSampleOfIthOrder.sample_id,
+      //       },
+      //     },
+      //     { transaction: t }
+      //   );
+
+      //   for (let eachParamOfTotalSamples of paramsList) {
+      //     const param = {
+      //       param_id: eachParamOfTotalSamples.param_id,
+      //       orderedPrice: eachParamOfTotalSamples.param_price,
+      //     };
+
+      //     const paramInfo = await Params.findByPk(
+      //       eachParamOfTotalSamples.param_id,
+      //       { transaction: t }
+      //     );
+
+      //     param.selectedParams = JSON.parse(paramInfo.params);
+      //     if (paramInfo.discipline === "CHEMICAL") {
+      //       sample.chemicalParams.push(param);
+      //     } else {
+      //       sample.physicalParams.push(param);
+      //     }
+      //   }
+      //   orderObj.samplesList.push(sample);
+      // }
+      // result.push(orderObj);
+    }
+    await t.commit();
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    await t.rollback();
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getCompleteOrderDetails = async (req, res) => {
+  const { id } = req.params;
+  const t = await sequelize.transaction();
+  try {
+    const order = await Orders.findByPk(id, {
+      transaction: t,
+    });
+    const samplesList = [];
+
+    const samples = await SampleMaterials.findAll(
+      {
+        where: {
+          order_id: order.order_id,
+        },
+      },
+      { transaction: t }
+    );
+
+    for (let eachSampleOfIthOrder of samples) {
+      const sample = {
+        sample_id: eachSampleOfIthOrder.sample_id,
+        product_id: eachSampleOfIthOrder.product_id,
+        isOffer: eachSampleOfIthOrder.isOffer,
+        offer: eachSampleOfIthOrder.offer,
+        chemicalParams: [],
+        physicalParams: [],
+
+        brandName: eachSampleOfIthOrder.brandName,
+        created_at: eachSampleOfIthOrder.created_at,
+        grade: eachSampleOfIthOrder.grade,
+        quantity: eachSampleOfIthOrder.quantity,
+        ref_code: eachSampleOfIthOrder.ref_code,
+        sample_id_optional_field: eachSampleOfIthOrder.sample_id_optional_field,
+        source: eachSampleOfIthOrder.source,
+        week_no: eachSampleOfIthOrder.week_no,
+      };
+
+      const productAdditionalInfo = await Product.findByPk(
+        eachSampleOfIthOrder.product_id,
+        { transaction: t }
+      );
+
+      sample.name = productAdditionalInfo.name;
+      sample.image = productAdditionalInfo.image;
+
+      const paramsList = await SampleParams.findAll(
         {
           where: {
-            order_id: eachOrder.order_id,
+            sample_id: eachSampleOfIthOrder.sample_id,
           },
         },
         { transaction: t }
       );
 
-      for (let eachSampleOfIthOrder of samplesList) {
-        const sample = {
-          //Hey Pav..  you want any additional thing freel free to add
-          sample_id: eachSampleOfIthOrder.sample_id,
-          product_id: eachSampleOfIthOrder.product_id,
-          isOffer: eachSampleOfIthOrder.isOffer,
-          offer: eachSampleOfIthOrder.offer,
-          chemicalParams: [],
-          physicalParams: [],
-
-          brandName: eachSampleOfIthOrder.brandName,
-          created_at: eachSampleOfIthOrder.created_at,
-          grade: eachSampleOfIthOrder.grade,
-          quantity: eachSampleOfIthOrder.quantity,
-          ref_code: eachSampleOfIthOrder.ref_code,
-          sample_id_optional_field:
-            eachSampleOfIthOrder.sample_id_optional_field,
-          source: eachSampleOfIthOrder.source,
-          week_no: eachSampleOfIthOrder.week_no,
+      for (let eachParamOfTotalSamples of paramsList) {
+        const param = {
+          param_id: eachParamOfTotalSamples.param_id,
+          orderedPrice: eachParamOfTotalSamples.param_price,
         };
 
-        const productAdditionalInfo = await Product.findByPk(
-          eachSampleOfIthOrder.product_id,
+        const paramInfo = await Params.findByPk(
+          eachParamOfTotalSamples.param_id,
           { transaction: t }
         );
 
-        sample.name = productAdditionalInfo.name;
-        sample.image = productAdditionalInfo.image;
-
-        const paramsList = await SampleParams.findAll(
-          {
-            where: {
-              sample_id: eachSampleOfIthOrder.sample_id,
-            },
-          },
-          { transaction: t }
-        );
-
-        for (let eachParamOfTotalSamples of paramsList) {
-          const param = {
-            param_id: eachParamOfTotalSamples.param_id,
-            orderedPrice: eachParamOfTotalSamples.param_price,
-          };
-
-          const paramInfo = await Params.findByPk(
-            eachParamOfTotalSamples.param_id,
-            { transaction: t }
-          );
-
-          param.selectedParams = JSON.parse(paramInfo.params);
-          if (paramInfo.discipline === "CHEMICAL") {
-            sample.chemicalParams.push(param);
-          } else {
-            sample.physicalParams.push(param);
-          }
+        param.selectedParams = JSON.parse(paramInfo.params);
+        if (paramInfo.discipline === "CHEMICAL") {
+          sample.chemicalParams.push(param);
+        } else {
+          sample.physicalParams.push(param);
         }
-
-        orderObj.samplesList.push(sample);
       }
-      result.push(orderObj);
+      samplesList.push(sample);
     }
+
+    const result = { ...order.dataValues, samplesList };
 
     await t.commit();
     return res.status(200).json({ data: result });
   } catch (error) {
-    await t.rollback();
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
   }
@@ -596,10 +681,6 @@ const uploadWorkOrderFileToS3 = (file, id) => {
 
 const completeEcommerceOrderRegistration = async (req, res) => {
   const t = await sequelize.transaction();
-  // return res.status(200).json({
-  //   message: "Order registration completed successfully",
-  //   data: req.body,
-  // });
 
   const {
     //order info
@@ -613,14 +694,8 @@ const completeEcommerceOrderRegistration = async (req, res) => {
     nhai_bool,
     parent_ref_bool,
     samples,
+    customer_id,
     //customers Data
-    existing_customer,
-    name,
-    email,
-    mobile,
-    gst,
-    pan,
-    customer_address,
   } = req.body;
 
   try {
@@ -633,21 +708,6 @@ const completeEcommerceOrderRegistration = async (req, res) => {
     const uploadedFile = await uploadWorkOrderFileToS3(letterFile, order_id);
     const client_letter_location = uploadedFile.Location;
 
-    if (existing_customer === "false") {
-      console.log("Am inside if");
-      const customerObj = {
-        name,
-        email,
-        contact: mobile,
-        gst_number: gst,
-        pan_number: pan,
-        address: customer_address,
-      };
-
-      customerInfo = await Customers.create(customerObj, { transaction: t });
-      console.log(customerInfo);
-    }
-
     await Orders.update(
       {
         project_name,
@@ -658,8 +718,9 @@ const completeEcommerceOrderRegistration = async (req, res) => {
         due_date,
         nhai_bool,
         parent_ref_bool,
-        customer_id: customerInfo.customer_id,
+        customer_id: customer_id,
         client_letter: client_letter_location,
+        registration_done: true,
       },
       { where: { order_id } },
       { transaction: t }
@@ -695,7 +756,7 @@ const completeEcommerceOrderRegistration = async (req, res) => {
     await t.commit();
     return res.status(200).json({
       message: "Order registration completed successfully",
-      data: req.body,
+      data: { order_id, project_name, subject, registration_done: true },
     });
   } catch (err) {
     console.log(err);
@@ -1140,6 +1201,7 @@ module.exports = {
   getCustomersList,
   addCustomer,
   getSubscribers,
+  getCompleteOrderDetails,
 
   //website users
   getSiteUsers,

@@ -1,3 +1,7 @@
+//another variable
+//registration_done = false
+//amount
+
 module.exports = (sequelize, DataTypes) => {
   const Orders = sequelize.define(
     "Orders",
@@ -12,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
+      },
+      amount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
       razorpay_order_id: {
         type: DataTypes.STRING(200),
@@ -50,6 +58,12 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       driver_assigned: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
+
+      registration_done: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
         defaultValue: false,
@@ -139,6 +153,15 @@ module.exports = (sequelize, DataTypes) => {
       due_date: {
         type: DataTypes.TEXT,
         allowNull: true,
+      },
+      lab: {
+        type: DataTypes.STRING,
+        allowNull: true,
+
+        references: {
+          model: "branches",
+          key: "branch_id",
+        },
       },
     },
 
