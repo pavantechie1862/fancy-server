@@ -66,6 +66,11 @@ const SampleParams = require("./SampleParams")(sequelize, Sequelize.DataTypes);
 const Customers = require("./Customers")(sequelize, Sequelize.DataTypes);
 // const  = require("./AccessKeys")(sequelize, Sequelize.DataTypes)
 
+const MaterialTestingQuotation = require("./materialTestingQuotations")(
+  sequelize,
+  Sequelize.DataTypes
+);
+
 module.exports = {
   User,
   db,
@@ -86,4 +91,5 @@ module.exports = {
   SampleMaterials,
   SampleParams,
   Customers,
+  MaterialTestingQuotation,
 };

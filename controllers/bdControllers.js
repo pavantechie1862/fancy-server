@@ -339,6 +339,27 @@ const getProductPartialData = async (req, res) => {
   }
 };
 
+const getAllParams = async (req, res) => {
+  try {
+    const params = await Params.findAll({
+      attributes: [
+        ["param_id", "paramId"],
+        ["is_nabl", "isNabl"],
+        "price",
+        "subgroup",
+        "params",
+        "discipline",
+        "requirements",
+      ],
+    });
+
+    return res.status(200).json({ data: params });
+  } catch (error) {
+    console.error("Error fetching parameters:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 const getAllProductsNameId = async (req, res) => {
   try {
     const products = await Product.findAll({
@@ -1190,6 +1211,7 @@ module.exports = {
 
   //params
   addParams,
+  getAllParams,
 
   //client-requests
   getRequestCallbacks,
@@ -1217,4 +1239,6 @@ module.exports = {
   getDisciplineWise,
   getOnlineUsersMonthly,
   getOnlineUsersDaily,
+
+  //Quotations
 };

@@ -16,10 +16,10 @@
     }
   },
   "test": {
-    "username": "admin",
-    "password": "rgukt123",
+    "username": "root",
+    "password": "keka@3061",
     "database": "lims",
-    "host": "fancy-lims.c98oisyqu0gw.ap-south-1.rds.amazonaws.com",
+    "host": "127.0.0.1",
     "dialect": "mysql",
     "connectTimeout": 30000,
     "define": {

@@ -6,6 +6,7 @@ require("dotenv").config();
 
 const {
   createCallbackRequest,
+  getAllParams,
   subscribeController,
   onAddingNewProduct,
   getAllProductsNameId,
@@ -88,5 +89,6 @@ router.get("/samples-statistics", getProductSampleCounts);
 router.get("/discipline-wise", getDisciplineWise);
 router.get("/get-online-users-daily", getOnlineUsersDaily);
 router.get("/get-online-users-monthly", getOnlineUsersMonthly);
+router.get("/get-all-params", getAllParams);
 
 module.exports = router;

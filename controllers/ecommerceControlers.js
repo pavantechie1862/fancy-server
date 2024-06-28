@@ -17,6 +17,7 @@ const { v4: uuidv4 } = require("uuid");
 // const crypto = require("crypto");
 
 require("dotenv").config();
+
 const getUserEmailFromToken = (req, res) => {
   const authorizationHeader = req.headers.authorization;
 
@@ -465,6 +466,13 @@ const fetchMyOrders = async (req, res) => {
   }
 };
 
+const materialTestingQuotation = (req, res) => {
+  console.log("In qutation");
+  try {
+    console.log(req.body);
+  } catch (err) {}
+};
+
 module.exports = {
   getUserEmailFromToken,
   registerUser,
@@ -483,4 +491,7 @@ module.exports = {
   //orders
   createOrder,
   fetchMyOrders,
+
+  //quatations
+  materialTestingQuotation,
 };
